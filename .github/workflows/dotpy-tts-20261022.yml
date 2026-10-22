@@ -1,4 +1,4 @@
-name: DotPy Neural Audio Connectivity Test
+name: DotPy Day Four Natural Voice Render
 on:
   pull_request:
     types: [opened, synchronize]
@@ -7,17 +7,23 @@ on:
 permissions:
   contents: read
 jobs:
-  sample:
+  narrate:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 40
     steps:
-      - run: python -m pip install edge-tts
-      - run: |
-          edge-tts --voice en-ZA-LukeNeural --text "Welcome to DotPy. This is a natural voice connectivity test." --write-media sample.mp3
-          test -s sample.mp3
-          du -h sample.mp3
+      - uses: actions/checkout@v4
+      - name: Install natural speech generator
+        run: python -m pip install --disable-pip-version-check edge-tts mutagen
+      - name: Synthesize 52 complete Day Four lessons
+        run: python dotpy_day4_temp/render.py
+      - name: Validate all narration clips
+        run: |
+          test "$(find voice -name '*.mp3' | wc -l)" -eq 52
+          test -s voice/manifest.json
+          du -sh voice
       - uses: actions/upload-artifact@v4
         with:
-          name: sample
-          path: sample.mp3
+          name: dotpy-day4-neural-voice-all52
+          path: voice/
           retention-days: 1
+          if-no-files-found: error

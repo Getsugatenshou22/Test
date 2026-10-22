@@ -15,7 +15,7 @@ jobs:
       - run: |
           edge-tts --voice en-ZA-LukeNeural --text "Welcome to DotPy. This is a natural voice connectivity test." --write-media sample.mp3
           test -s sample.mp3
-          ffprobe -v error -show_entries format=duration -of default=nw=1 sample.mp3
+          du -h sample.mp3
       - uses: actions/upload-artifact@v4
         with:
           name: sample

@@ -1,0 +1,29 @@
+name: Temporary DotPy Day Five Neural Narration
+on:
+  push:
+    branches: [dotpy-day5-natural-voice-20261022]
+  pull_request:
+    types: [opened, synchronize]
+permissions:
+  contents: read
+jobs:
+  narrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install voice synth and audio validators
+        run: python -m pip install --disable-pip-version-check edge-tts mutagen
+      - name: Generate all 59 scenes
+        run: python dotpy_day5_temp/render.py
+      - name: Validate completeness and export
+        run: |
+          test "$(find voice -name '*.mp3' | wc -l)" -eq 59
+          test -s voice/manifest.json
+          du -sh voice
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dotpy-day5-neural-voice-59-scenes
+          path: voice/
+          retention-days: 1
+          if-no-files-found: error
